@@ -1,0 +1,207 @@
+---
+layout: post
+title: "Multi-AI Workflow: How I Shipped an OCR Feature with Gemini + Claude"
+date: 2025-04-01 19:30:00 +0200
+tags: [ai, gemini, claude, productivity, voxlogai]
+description: "How I used Gemini and Claude together to design, implement, and ship an OCR feature in under 1 hour — no code written manually."
+image: /assets/posts/2025-04-01-multi-ai-feature/gemini_initial_prompt.png
+---
+
+<p>Today I added a full OCR feature to <a href="https://voxlogai.acascais.com" target="_blank" rel="noopener noreferrer">VoxLogAI</a> — <strong>without writing a single line of code myself</strong>. Just AI prompts, a few clicks, and some glue.</p>
+
+<p>Here's how it went down:</p>
+
+<hr />
+
+<h2>🧠 The Setup</h2>
+
+<p>VoxLogAI started as a tool for fast, AI-powered audio transcription (YouTube, MP3, etc). I wanted to expand it to also extract text from PDFs and images — basically <strong>add OCR support</strong>.</p>
+
+<p>Instead of opening an editor, I opened <strong>Google AI Studio</strong> and started chatting with Gemini (<code>gemini-2.5-pro-exp-03-25</code>).</p>
+
+<hr />
+
+<h2>📜 The Prompt</h2>
+
+<p>First, I set up a <strong>system prompt</strong> to give Gemini context:</p>
+
+<pre><code>You will act as a technical Product Owner and will help the user refining tickets. The original codebase will be passed under &lt;codebase/&gt;.
+</code></pre>
+
+<p>Then I passed in the code using a tool called <a href="https://github.com/yamadashy/repomix" target="_blank" rel="noopener noreferrer">Repomix</a>, which lets us flatten the repo into an XML structure.</p>
+
+<p>I also included working OCR scripts for reference:</p>
+<ul>
+  <li><code>gemini_image_ocr.py</code></li>
+  <li><code>gemini_pdf_ocr.py</code></li>
+</ul>
+
+<h3>My prompt:</h3>
+
+<pre><code>Please look at gemini_image_ocr.py and gemini_pdf_ocr.py
+
+These are scripts that send an image/pdf to Gemini to perform OCR.
+
+Now, I’d like to incorporate that into my app. But how, UI-wise? At the moment it's only for audio transcription, so I guess we’d need to add a new OCR tab?
+
+What do you think? Brainstorm with me before writing any code.
+&lt;example_code&gt;
+[the contents of the python scripts]
+&lt;/example_code&gt;
+</code></pre>
+
+<figure style="margin-bottom: 1.5em;">
+  <img src="/assets/posts/2025-04-01-multi-ai-feature/gemini_initial_prompt.png" 
+       alt="Initial Gemini prompt for designing the OCR feature in VoxLogAI"
+       style="max-width: 100%; height: auto;">
+</figure>
+
+<p />
+<hr />
+
+<h2>💡 Gemini’s Design Help</h2>
+
+<p>Gemini responded with a few UI/UX options.  
+Initially it leaned toward Option 2 (embed OCR in existing flow), but after I asked about <strong>mobile usage</strong>, it switched to Option 3 — a dedicated OCR tab.</p>
+
+<div style="display: flex; gap: 1em; flex-wrap: wrap; justify-content: center; margin-bottom: 2em;" role="group" aria-label="Gemini design suggestions for OCR">
+
+  <figure style="flex: 1 1 300px; text-align: center; max-width: 100%;">
+    <a href="/assets/posts/2025-04-01-multi-ai-feature/gemini_UI_suggestions.png" target="_blank">
+      <img src="/assets/posts/2025-04-01-multi-ai-feature/gemini_UI_suggestions.png" 
+           alt="Gemini’s initial UI suggestions for integrating OCR in VoxLogAI"
+           style="width: 100%; height: auto; border-radius: 6px;">
+    </a>
+    <figcaption style="font-size: 0.85em; color: #666;">Initial suggestion</figcaption>
+  </figure>
+
+  <figure style="flex: 1 1 300px; text-align: center; max-width: 100%;">
+    <a href="/assets/posts/2025-04-01-multi-ai-feature/gemini_changing_minds_1.png" target="_blank">
+      <img src="/assets/posts/2025-04-01-multi-ai-feature/gemini_changing_minds_1.png" 
+           alt="Gemini reconsidering UI design after mobile usage feedback"
+           style="width: 100%; height: auto; border-radius: 6px;">
+    </a>
+    <figcaption style="font-size: 0.85em; color: #666;">Mid-way UX shift</figcaption>
+  </figure>
+
+  <figure style="flex: 1 1 300px; text-align: center; max-width: 100%;">
+    <a href="/assets/posts/2025-04-01-multi-ai-feature/gemini_changing_minds_2.png" target="_blank">
+      <img src="/assets/posts/2025-04-01-multi-ai-feature/gemini_changing_minds_2.png" 
+           alt="Gemini’s final suggestion: adding a dedicated OCR tab"
+           style="width: 100%; height: auto; border-radius: 6px;">
+    </a>
+    <figcaption style="font-size: 0.85em; color: #666;">Final suggestion: Option 3</figcaption>
+  </figure>
+</div>
+
+
+<p>Then I asked it:</p>
+<blockquote>
+  <p><strong>“then let's refine ticket for option 3 please”</strong></p>
+</blockquote>
+
+<p>
+  You can view the refined Gemini ticket here: <a href="/assets/posts/2025-04-01-multi-ai-feature/gemini_add_ocr_refined_ticket.md" target="_blank">View the full Gemini-generated ticket (Markdown)</a>.
+</p>
+
+<hr />
+
+<h2>🛠️ Claude Does the Code</h2>
+
+<p>With the ticket in hand, I switched to <strong>Claude</strong>.</p>
+
+<p>I asked it to read the ticket and implement the feature. It handled it end-to-end. The result <strong>worked out of the box</strong>, with just one minor bug:</p>
+
+<figure style="margin-bottom: 1.5em;">
+  <img src="/assets/posts/2025-04-01-multi-ai-feature/claude_implement_task.png" 
+       alt="Claude implementing the OCR feature based on Gemini’s ticket"
+       style="max-width: 100%; height: auto;">
+</figure>
+
+<p>I reported the bug (which was a minor UI issue) to Claude → fixed:</p>
+
+
+<figure style="margin-bottom: 1.5em;">
+  <img src="/assets/posts/2025-04-01-multi-ai-feature/claude_fixes_bug.png" 
+       alt="Claude fixing a minor UI bug after feedback during implementation"
+       style="max-width: 100%; height: auto;">
+</figure>
+
+<p>Then I asked Claude to <strong>refactor a bloated file</strong>, and it did.</p>
+
+<blockquote>
+  <p><strong>
+        "perfect! now, a bit of refactor is needed IMO: we have the transcriber logic in transcriber.py, which i like. shouldn't we have a ocr.py (or wtv name you think is best) and include the logic there too? app.py seems to be doing a lot now. what do you think? i'm open to be challenged"
+</strong></p>
+</blockquote>
+
+<hr />
+
+<h2>🧼 Gemini Does the PR Review</h2>
+
+<p>After Claude was done, I staged the changes. Claude can occasionally overwrite previous changes if the context gets messy — committing often helps preserve state.</p>
+<p>Then I saved the git diff into a file to prepare the code review I would be asking Gemini to do:</p>
+
+<pre><code>git diff --staged &gt; /tmp/git_diff
+</code></pre>
+
+<p>Then I went back to Gemini, passed it the git diff and said:</p>
+
+<blockquote>
+  <p><strong>"please now put your Senior developer hat on and review the git diff that implemetnes this feature.
+focus on code quality, tech debt, securiuty vulnerabilities, etc"</strong></p>
+</blockquote>
+
+<p>Gemini came back with a bunch of solid code-level suggestions:
+  <a href="/assets/posts/2025-04-01-multi-ai-feature/gemini_code_review.md" target="_blank">Gemini's full code review for the OCR feature (Markdown)</a>
+</p>
+
+<hr />
+
+<h2>🔁 Claude Finalizes</h2>
+
+<p>I passed Gemini’s suggestions back to Claude (literally copy/paste).</p>
+
+<p>Then ran:</p>
+
+<pre><code>git diff &gt; /tmp/git_diff_latest
+</code></pre>
+
+<p>Sent that to Gemini for a final pass — it approved.</p>
+
+<hr />
+
+<h2>✅ Shipped.</h2>
+
+<p>
+Changes committed. Feature done.
+You can see the PR here: <a href="https://github.com/antoniocascais/VoxLogAI/pull/2" target="_blank" rel="noopener noreferrer">feat: Add Image/PDF OCR and Refactor UI Logic</a>
+</p>
+
+<ul>
+  <li>🧾 <strong>Cost:</strong> $2.97</li>
+  <li>⏱️ <strong>Time:</strong> &lt; 1 hour</li>
+  <li>👨‍💻 <strong>Code written manually:</strong> 0 lines</li>
+</ul>
+
+<hr />
+
+<h2>🧠 Lessons & Workflow Tips</h2>
+
+<ul>
+  <li><strong>Claude is fantastic for coding</strong> — especially in small, clean codebases.</li>
+  <li><strong>Gemini is killer at reasoning</strong>, product design, and high-level planning.</li>
+  <li>The combo? 🔥. Design with Gemini, code with Claude.</li>
+  <li>I always pass code as <strong>XML</strong> because AI models seem to understand structure better that way.</li>
+  <li>With Claude, <strong>commit often</strong> — it might overwrite things if the context window overflows.</li>
+</ul>
+
+<hr />
+
+<h2>⚡ Verdict</h2>
+
+<p>This was a real productivity boost.</p>
+
+<p>Not because AI replaced the thinking — but because it helped me move fast through the grind.</p>
+
+<p>And, more importantly, it was fun!</p>
