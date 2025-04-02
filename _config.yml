@@ -25,6 +25,8 @@ author: "Antonio Cascais"
 baseurl: "" # the subpath of your site, e.g. /blog
 url: "https://blog.acascais.com" # the base hostname & protocol for your site, e.g. http://example.com
 github_username: antoniocascais
+image: /assets/og/blog-thumbnail.png
+favicon: /assets/og/favicon.ico
 
 # Build settings
 theme: minima
