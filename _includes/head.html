@@ -2,7 +2,16 @@
   <meta charset="utf-8">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1">
+
   {%- seo -%}
+
+  <!-- OG & Twitter Image Support -->
+  <meta property="og:image" content="{{ site.url }}{{ page.image | default: site.image }}">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="{{ page.title | default: site.title }}">
+  <meta name="twitter:description" content="{{ page.description | default: site.description }}">
+  <meta name="twitter:image" content="{{ site.url }}{{ page.image | default: site.image }}">
+
   <link rel="stylesheet" href="{{ "/assets/main.css" | relative_url }}">
   <link rel="icon" href="{{ '/assets/favicon.ico' | relative_url }}" type="image/x-icon">
   <link rel="icon" href="{{ '/assets/favicon.png' | relative_url }}" type="image/png">
