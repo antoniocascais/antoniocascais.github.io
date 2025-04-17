@@ -1,0 +1,224 @@
+---
+layout: post
+title: "Codex vs Claude Code: Comparing OpenAI and Anthropic AI Pair-Programming Tools"
+date: 2025-04-17 22:00:00 +0200
+tags: [ai-agents, devtools, codex, claude-code, comparison, ai-pair-programming, ai-developer-tools]
+description: "I compared OpenAI Codex and Anthropic's Claude Code for AI-driven pair-programming. See performance benchmarks, UX differences, API cost breakdowns, and practical insights."
+image: /assets/posts/2025-04-17-codex-vs-claude-code/codex_intro.png
+---
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "TechArticle",
+  "headline": "Codex vs Claude Code: Comparing OpenAI and Anthropic AI Pair-Programming Tools",
+  "description": "I compared OpenAI Codex and Anthropic Claude Code for AI-driven pair-programming. See benchmarks, UX comparisons, API cost, and practical insights.",
+  "author": {
+    "@type": "Person",
+    "name": "Antonio Cascais"
+  },
+  "datePublished": "2025-04-17",
+  "keywords": ["AI pair programming", "OpenAI Codex", "Anthropic Claude", "AI developer tools", "Codex vs Claude comparison", "AI code assistant"]
+}
+</script>
+
+<blockquote>“Ship it, break it, blog it.” — me, probably</blockquote>
+
+<h2>Why I’m pitting two bots against each other</h2>
+
+<p><strong><a href="https://github.com/openai/codex" target="_blank" rel="noopener noreferrer" title="OpenAI Codex GitHub Repository">Codex</a></strong> (fresh‑minted <em>yesterday</em>, 2025‑04‑16) is OpenAI’s new <strong>open‑source</strong> code‑agent CLI, designed to work exclusively with OpenAI models. Its direct competitor is Anthropic's <strong><a href="https://docs.anthropic.com/en/docs/agents-and-tools/claude-code/overview" target="_blank" rel="noopener noreferrer" title="Anthropic Claude Code Documentation">Claude Code</a></strong>, a more established, polished, but closed-source rival which utilizes Anthropic's models (available via their API, AWS Bedrock, or Google Vertex AI). For this comparison, I used the default settings: Codex ran on OpenAI's <code>o4-mini</code>, while Claude Code used Anthropic's <code>claude-3-7-sonnet-20250219</code>. While both tools allow selecting different models *within their respective ecosystems* (e.g., switching Codex to <code>gpt-4o</code> or Claude Code to a Haiku variant), they don't cross platforms.</p>
+
+<p>Some friends have been asking me about my experience with these AI pair programming tools, so I dropped both into my
+<code>alfred‑ai‑assistant</code> project (a Go Telegram bot that acts as personal assistant using the OpenAI Assistants API) and asked them to:</p>
+
+<ol>
+  <li><strong>Read</strong> the repo.</li>
+  <li><strong>Pitch</strong> three improvement tickets.</li>
+  <li><strong>Write</strong> the ticket files.</li>
+  <li><strong>Implement</strong> one of the tickets and let Google <strong>Gemini 2.5 Pro</strong> review the pull‑requests (that’ll be Part 2).</li>
+</ol>
+
+<p>I timed everything and checked the API bill so you don’t have to. This post details the Codex vs Claude comparison for these initial tasks, running on their respective default models at the time of writing.</p>
+<p><i>(For another example of using AI in development, check out my <a href="https://blog.acascais.com/multi-ai-feature/" title="Multi-AI Workflow: How I Shipped an OCR Feature with Gemini + Claude">Multi-AI Workflow post where I used Gemini and Claude together</a>.)</i></p>
+
+<hr />
+
+<h2>Fast TL;DR — Numbers <em>and</em> Vibes</h2>
+
+<p>If you just want the scoreboard, here it is. But numbers alone don’t tell the whole story of these AI developer tools, so I sprinkled in a gut‑feel verdict on each row.</p>
+
+<table>
+  <thead><tr><th>Bot</th><th>Analysis time</th><th>Ticket time</th><th>API cost</th><th>Overall vibe</th></tr></thead>
+  <tbody>
+    <tr><td>Codex</td><td>~30 s</td><td>9 s</td><td><strong>$0.28</strong></td><td>Strong dev that you can trust</td></tr>
+    <tr><td>Claude Code</td><td>~50 s</td><td>12 s</td><td><strong>$0.4443</strong></td><td>Seasoned senior dev who invoices accordingly</td></tr>
+  </tbody>
+</table>
+
+<p>Bottom line: 🤓 <strong>Codex</strong> already behaves like a <em>strong dev you can trust</em>—solid suggestions, quick turnaround, less cost per session. 🤖 <strong>Claude</strong> layers on that extra senior‑engineer polish and slick UX for an extra cost per run, a premium worth paying if you need the deeper guidance from your AI code assistant.</p>
+
+<hr />
+
+<h2>Installing the contenders</h2>
+
+<p>You can install both AI pair programming CLIs via npm:</p>
+<pre><code># Codex (Check official repo/docs for latest install method)
+npm install -g @openai/codex
+
+# Claude Code (Check official repo/docs for latest install method)
+npm install -g @anthropic-ai/claude-code
+</code></pre>
+
+<p>Both CLIs need an API key. Codex accepts a <code>.env</code> with <code>OPENAI_API_KEY</code>; Claude Code stashes creds in <code>~/.claude.json</code> after an onboarding wizard.</p>
+
+<hr />
+
+<h2>Round 1: Testing OpenAI Codex CLI</h2>
+
+<figure>
+  <img src="/assets/posts/2025-04-17-codex-vs-claude-code/codex-01-explain-codebase-prompt.png" alt="OpenAI Codex CLI initial repository analysis prompt" style="max-width:100%;height:auto;">
+  <figcaption>OpenAI Codex CLI initial repository analysis prompt</figcaption>
+</figure>
+
+<p>I started with the OpenAI Codex CLI. It poked around the repo (<code>ls</code>, <code>head</code>, etc.) and in ~30 s dumped a <em>9‑point</em> architectural recap. Snapshot below is truncated, full text lived in the terminal.</p>
+
+
+<figure>
+  <img src="/assets/posts/2025-04-17-codex-vs-claude-code/codex-02-codebase-explanation.png" alt="OpenAI Codex CLI detailed 9-point Go project breakdown" style="max-width:100%;height:auto;">
+  <figcaption>Verbose breakdown from Codex</figcaption>
+</figure>
+
+<p>The analysis was <em>long‑winded</em> but accurate. I caught myself nodding along while scrolling.</p>
+
+<h3>Asking for improvements using Codex</h3>
+
+<pre><code>if you had to suggest 3 main tickets to improve this codebase, what would you suggest? and why?
+</code></pre>
+
+<figure>
+  <img src="/assets/posts/2025-04-17-codex-vs-claude-code/codex-03-ask-for-improvements.png" alt="OpenAI Codex CLI ticket suggestions: Persistence, Config, API Client" style="max-width:100%;height:auto;">
+  <figcaption>Codex ticket ideas</figcaption>
+</figure>
+
+<p>Nine seconds later Codex fired back three tickets that lined up with a couple of my mental TODO list. Not bad for an AI code assistant.</p>
+
+<ol>
+  <li><strong>Thread Persistence & Lifecycle</strong> — ditch JSON and embrace an embedded DB.</li>
+  <li><strong>Centralized Config & Secrets Management</strong> — typed <code>Config</code>, validation, goodbye env‑var spaghetti.</li>
+  <li><strong>Resilient API Client & Structured Error‑Handling</strong> — retries and structured logs instead of <code>panic</code>.</li>
+</ol>
+
+<p>When asked to turn ideas into files, Codex turned into that colleague who needs you to hit <code>y</code> on every confirmation dialog.</p>
+
+<figure>
+  <img src="/assets/posts/2025-04-17-codex-vs-claude-code/codex-04-example-accept-changes.png" alt="Repetitive file creation confirmation prompts in OpenAI Codex CLI" style="max-width:100%;height:auto;">
+  <figcaption>Repetitive y/n prompts in Codex</figcaption>
+</figure>
+
+<blockquote>Tip: pass <code>--full-auto</code> if you trust it, but I like fingers‑on‑the‑kill‑switch.</blockquote>
+
+<figure>
+  <img src="/assets/posts/2025-04-17-codex-vs-claude-code/codex-05-tickets-created.png" alt="Folder tree showing three new markdown ticket files created by Codex" style="max-width:100%;height:auto;">
+  <figcaption>Tickets created by Codex</figcaption>
+</figure>
+
+<p><em>Example ticket excerpt</em> (<a href="/assets/posts/2025-04-17-codex-vs-claude-code/codex_t1_thread_persistence.md" target="_blank">View the full file</a>):</p>
+
+<pre><code># Thread Persistence & Lifecycle Improvements
+
+## Context
+Currently the bot keeps its mapping of Telegram users to OpenAI thread IDs in a flat JSON file (`threads.json`). …
+</code></pre>
+
+
+<h4>Codex bill</h4>
+
+<p>OpenAI usage page: <strong>$0.28</strong>.
+
+<hr />
+
+<h2>Round 2: Evaluating Anthropic Claude Code CLI</h2>
+
+<p>I stashed Codex tickets elsewhere so both bots started clean, launched the Anthropic Claude Code CLI and pasted the same typo‑laden prompt (fair test!). Claude took ~50s slower, but that's okay.</p>
+
+<figure>
+  <img src="/assets/posts/2025-04-17-codex-vs-claude-code/claude-02-codebase-explanation.png" alt="Anthropic Claude Code CLI brief high-level project summary" style="max-width:100%;height:auto;">
+  <figcaption>Terse summary from Claude Code</figcaption>
+</figure>
+
+<p>The explanation was concise—almost too concise—but it nailed the architecture in half a screen.</p>
+
+<h3>Improvement tickets from Claude Code</h3>
+<p>Its three picks:</p>
+<ol>
+  <li><strong>Implement robust user‑thread mapping</strong> with a real database.</li>
+  <li><strong>Enhance error handling and recovery</strong> — remove <code>log.Panic</code>, add retries & better
+      messages.</li>
+  <li><strong>Redesign OpenAI function‑tool system</strong> for plugin‑style extensibility.</li>
+</ol>
+
+<figure>
+  <img src="/assets/posts/2025-04-17-codex-vs-claude-code/claude-03-ask-for-improvements.png" alt="Anthropic Claude Code CLI ticket suggestions including function tool redesign" style="max-width:100%;height:auto;">
+  <figcaption>Claude Code ticket suggestions</figcaption>
+</figure>
+
+<p>The overlap with Codex was interesting: same first two tickets, but Claude tossed in a bolder refactor (#3) that I’d been procrastinating.</p>
+
+<p>File creation was much smoother: one select the option to approve all similar commands and the bot silently did its thing. This is a nice UX touch for an AI developer tool.</p>
+
+<figure>
+  <img src="/assets/posts/2025-04-17-codex-vs-claude-code/claude-04-example-accept-changes.png" alt="Anthropic Claude Code CLI permission prompt UX with trust option" style="max-width:100%;height:auto;">
+  <figcaption>Smarter permission UX in Claude Code</figcaption>
+</figure>
+
+<h4>Claude Code bill</h4>
+
+<figure>
+  <img src="/assets/posts/2025-04-17-codex-vs-claude-code/claude-06-final-cost.png" alt="Anthropic Claude Code CLI /cost command showing session cost $0.4443" style="max-width:100%;height:auto;">
+  <figcaption>Claude Code session cost snapshot</figcaption>
+</figure>
+
+<p>The built‑in <code>/cost</code> readout is glorious: spend, duration, lines changed—perfect for keeping track of costs when using these AI tools.</p>
+
+<hr />
+
+<h2>Battle notes & take‑aways: Codex vs Claude Comparison</h2>
+
+<ul>
+  <li><strong>Quality vs cost</strong> — Claude’s tickets felt like staff‑eng blueprints; Codex’s looked like solid mid‑level JIRA stories. A key difference in this Codex vs Claude comparison.</li>
+  <li><strong>UX</strong> — Claude’s one‑click trust toggle saves sanity. Codex’s y/n loop gets old fast.</li>
+  <li><strong>Built‑in /cost tracking</strong> — huge plus for Claude when you’re watching pennies.</li>
+  <li><strong>Speed</strong> — Codex wins the stopwatch, but the gap is seconds, not minutes.</li>
+  <li><strong>Open‑source momentum</strong> — Codex will probably level‑up quickly once GitHub starts filing issues and PRs.</li>
+</ul>
+
+<hr />
+
+<h2>Conclusion — Which AI Pair Programming Bot Lives in My Terminal?</h2>
+
+<p>After a day of back‑and‑forth comparing these AI developer tools, I’m keeping <strong>both</strong> in my toolkit:</p>
+
+<ul>
+  <li><strong>Codex (OpenAI Codex CLI)</strong> for rapid‑fire tasks where I value speed and cost over polish—think “generate a quick migration” or “draft a README”.</li>
+  <li><strong>Claude Code (Anthropic Claude Code)</strong> when I need senior‑level reasoning, richer diffs, or when the project’s budget can absorb the extra cost per session for a premium AI code assistant.</li>
+</ul>
+
+<p>The real win is optionality: I can start with Codex and, if it stalls, summon Claude for a second opinion without blowing the monthly AI budget. Effective AI pair programming often involves knowing which tool fits the task.</p>
+
+<p>Next up I’ll let both bots <em>implement</em> one of their own tickets and have Gemini 2.5 Pro conduct the code
+review. Stay tuned for Part 2 of this Codex vs Claude comparison, featuring AI bot coding fireworks.</p>
+
+<hr />
+
+<h3>Time & money recap</h3>
+
+<ul>
+  <li><strong>Codex:</strong> 39s wall time, <strong>$0.28</strong></li>
+  <li><strong>Claude Code:</strong> 62s wall time, <strong>$0.4443</strong></li>
+</ul>
+
+<hr />
+
+<p><strong>Cheap tools, <em>expensive curiosity</em>.</strong><br>
+But hey, at least my terminal now has two new colleagues—one reliable dev, and one seasoned pro who's worth every penny.</p>
+
+<p><em>Built it, broke it, blogged it. Catch you in Part 2 for more AI-powered fireworks (and hopefully fewer confirmation prompts).</em></p>
