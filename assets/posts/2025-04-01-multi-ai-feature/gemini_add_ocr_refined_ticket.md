@@ -1,5 +1,6 @@
 ---
 layout: none
+title: ""
 ---
 
 **User Story: Integrate Image and PDF OCR Functionality**

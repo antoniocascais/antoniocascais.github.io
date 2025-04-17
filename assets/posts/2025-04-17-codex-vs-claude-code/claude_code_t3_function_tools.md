@@ -1,5 +1,6 @@
 ---
 layout: none
+title: ""
 ---
 
 # Redesign OpenAI Function Tool System for Extensibility

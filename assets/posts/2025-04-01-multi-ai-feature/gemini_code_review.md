@@ -1,5 +1,6 @@
 ---
 layout: none
+title: ""
 ---
 
 Okay, Senior Developer hat is on. Let's review this diff focusing on quality, potential issues, and security.
