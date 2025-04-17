@@ -170,6 +170,27 @@ Currently the bot keeps its mapping of Telegram users to OpenAI thread IDs in a 
   <figcaption>Smarter permission UX in Claude Code</figcaption>
 </figure>
 
+<p><em>Here's an excerpt from the refactor ticket Claude Code suggested</em> (<a
+    href="/assets/posts/2025-04-17-codex-vs-claude-code/claude_code_t3_function_tools.md" target="_blank">View the full file</a>):</p>
+
+<pre><code># Redesign OpenAI Function Tool System for Extensibility
+
+## Description
+Refactor the current function tool implementation to create a plugin-based architecture that enables easy addition of new assistant capabilities without modifying core code.
+
+## Current Implementation
+The current implementation in `generateToolOutputs` is hardcoded with limited extensibility. Adding new functions requires modifying the core implementation, making the system difficult to extend and maintain.
+
+## Proposed Solution
+
+1. Create a plugin-based architecture for registering AI assistant functions
+2. Implement a registry system for dynamically discovering and loading functions
+3. Develop proper function parameter validation and error handling
+4. Add a configuration system for enabling/disabling specific functions
+5. Create standardized interfaces for function implementations
+6. Include comprehensive documentation and examples for function developers
+</code></pre>
+
 <h4>Claude Code bill</h4>
 
 <figure>

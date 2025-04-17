@@ -1,3 +1,7 @@
+---
+layout: none
+---
+
 **User Story: Integrate Image and PDF OCR Functionality**
 
 **As a** VoxLogAI user,

@@ -1,3 +1,7 @@
+---
+layout: none
+---
+
  # Thread Persistence & Lifecycle Improvements
  
  ## Context
