@@ -1,0 +1,303 @@
+---
+layout: post
+title: "A Walk Through My Claude Code Workflow"
+date: 2026-01-12 12:00:00 +0200
+slug: claude-code-workflow
+tags: [claude-code, workflow, ai-pair-programming, devtools, perplexity]
+keywords: [claude code, workflow, plan mode, slash commands, note-taking, pr-review, ai-assisted development]
+description: "My workflow for using Claude Code: planning with plan mode, reviewing with custom skills, and keeping notes for future sessions."
+permalink: /claude-code-workflow/
+image: /assets/posts/2026-01-12-claude-code-workflow/scully_facts_example.png
+---
+<nav id="table-of-contents">
+<h2>Table of Contents</h2>
+<ul>
+<li><a href="#intro">Intro</a></li>
+<li><a href="#the-app-scully-facts">The app: Scully Facts</a></li>
+<li><a href="#the-workflow">The Workflow</a>
+  <ul>
+    <li><a href="#setting-up-context">Setting Up Context</a></li>
+    <li><a href="#plan-mode">Plan Mode</a></li>
+    <li><a href="#implementation">Implementation</a></li>
+    <li><a href="#pr-review">PR Review</a></li>
+    <li><a href="#note-taking">Note Taking</a></li>
+    <li><a href="#loading-context-in-new-sessions">Loading Context in New Sessions</a></li>
+  </ul>
+</li>
+<li><a href="#conclusion">Conclusion</a></li>
+</ul>
+</nav>
+
+<section id="intro">
+<h2>Intro</h2>
+
+<p>If you follow me on <a href="https://x.com/terminalnotes" target="_blank" rel="noopener noreferrer">Twitter/X</a> you can see I'm posting a lot about Claude Code. Because of that my feed is mostly about people using Claude Code, sharing tips &amp; tricks, etc., so it makes me assume that Claude Code is now a more or less known tool.</p>
+
+<p>However, when I talk to some friends or friends of friends I realize that most people haven't tried Claude Code (or similar tools) and don't really know how to use them nor what they can do.</p>
+
+<p>Because of that I decided to write this post and show my Claude Code flow: how I plan, execute, review and take notes with Claude Code.
+I'll be sharing some screenshots in this article, and I'll also be posting a full video walkthrough on Twitter in the coming days.</p>
+</section>
+
+<hr />
+
+<section id="the-app-scully-facts">
+<h2>The app: Scully Facts</h2>
+
+<p>In order to prepare this article I was trying to come up with ideas about apps that would be not-that-complex and kind-of-useful. I realized I was using AI to fact check statements quite often, so thought "why not an AI fact checker"? And if it is a "search the web" AI app, Perplexity seemed like the right AI to use.</p>
+
+<p>That's how Scully Facts (yes, the name is referring to the character Scully from X-Files) idea was born. It's a super simple app in which you write down a claim and then Scully will use Perplexity SDK to fact-check it on the internet.</p>
+
+<p>You can check the final source code of Scully Facts <a href="https://github.com/antoniocascais/scully-facts" target="_blank" rel="noopener noreferrer">here</a> and you can also <a href="https://scully.acascais.com" target="_blank" rel="noopener noreferrer">try the app here</a>.</p>
+
+<p><picture>
+<source type="image/avif" srcset="/assets/posts/2026-01-12-claude-code-workflow/scully_facts_example-800.avif 800w, /assets/posts/2026-01-12-claude-code-workflow/scully_facts_example-1200.avif 1200w">
+<source type="image/webp" srcset="/assets/posts/2026-01-12-claude-code-workflow/scully_facts_example-800.webp 800w, /assets/posts/2026-01-12-claude-code-workflow/scully_facts_example-1200.webp 1200w">
+<img src="/assets/posts/2026-01-12-claude-code-workflow/scully_facts_example.png" width="565" height="947" loading="lazy" decoding="async" sizes="(max-width: 800px) 100vw, 800px" alt="Scully Facts interface showing a fact-check example">
+</picture></p>
+</section>
+
+<hr />
+
+<section id="the-workflow">
+<h2>The Workflow</h2>
+
+<p>This isn't necessarily the most efficient way to use Claude Code, but it's my way. I've been iterating on this workflow for a while and it works well for how I think.</p>
+
+<h3 id="setting-up-context">Setting Up Context</h3>
+
+<p>When I'm going to ask Claude Code to develop something based on a specific tool (in this case, Perplexity SDK) I like to prepare a bit first: I go online and pull the official documentation for the version of the tool we'll be using.</p>
+
+<p>I do this because the LLMs (in this case, Opus 4.5) were trained with past versions of the tools/technologies, so whatever knowledge it has by default might be outdated. And, quite often, there are newer releases with breaking changes that Claude Code doesn't know about.</p>
+
+<p>By feeding the documentation to Claude, we guarantee it knows what are the latest features and how to use the tool.</p>
+
+<p><picture>
+<source type="image/avif" srcset="/assets/posts/2026-01-12-claude-code-workflow/initial_prompt-800.avif 800w, /assets/posts/2026-01-12-claude-code-workflow/initial_prompt-1200.avif 1200w">
+<source type="image/webp" srcset="/assets/posts/2026-01-12-claude-code-workflow/initial_prompt-800.webp 800w, /assets/posts/2026-01-12-claude-code-workflow/initial_prompt-1200.webp 1200w">
+<img src="/assets/posts/2026-01-12-claude-code-workflow/initial_prompt.png" width="957" height="442" loading="lazy" decoding="async" sizes="(max-width: 800px) 100vw, 800px" alt="Claude Code terminal showing initial prompt with numbered steps and /add-dir command">
+</picture></p>
+
+<p>Another trick I've learned over the last 3 years of using AI tools is that it helps a lot to ask the AI to ask you questions to gather more information about the problem you're trying to solve. The AI output will be as good as the input you give it and, more often than not, we tend to assume that the AI can read our thoughts and will magically know what we want. Instead of coming up with prompt techniques that make us write a huge prompt with all the information, it's usually enough to just describe the problem a bit and ask the AI to ask you questions to retrieve more context from you.</p>
+
+<p>After reading the docs and thinking about the problem, Claude came up with a couple of questions to understand the problem better:</p>
+
+<p><picture>
+<source type="image/avif" srcset="/assets/posts/2026-01-12-claude-code-workflow/context_questions-800.avif 800w, /assets/posts/2026-01-12-claude-code-workflow/context_questions-1200.avif 1200w">
+<source type="image/webp" srcset="/assets/posts/2026-01-12-claude-code-workflow/context_questions-800.webp 800w, /assets/posts/2026-01-12-claude-code-workflow/context_questions-1200.webp 1200w">
+<img src="/assets/posts/2026-01-12-claude-code-workflow/context_questions.png" width="964" height="947" loading="lazy" decoding="async" sizes="(max-width: 800px) 100vw, 800px" alt="Claude Code asking scoping questions about the fact-checker app">
+</picture></p>
+
+<h3 id="plan-mode">Plan Mode</h3>
+
+<p>One of my favorite features of Claude Code is the "Plan Mode" (which you can get to by pressing <code>shift+tab</code>). If you look closely to the screenshots above, you can see "plan mode on" at the bottom of the status line.</p>
+
+<p>I love this feature because it tells Claude to create a plan on what it is going to do BEFORE it actually does it. This way, we can have a look at the plan (you can run <code>/plan open</code> inside Claude to open the file, or check it directly in the <code>~/.claude/plans/</code> folder) and see if Claude is on the right track or not. If we don't like the way it is solving something, we can just edit the plan (or tell Claude to do so) and change whatever we need to change.</p>
+
+<p>For me, it's quite common to spend more time creating this plan file than actually implementing whatever needs to be implemented. Because once the plan is properly defined, the implementation is much easier.</p>
+
+<p><picture>
+<source type="image/avif" srcset="/assets/posts/2026-01-12-claude-code-workflow/plan_output-800.avif 800w, /assets/posts/2026-01-12-claude-code-workflow/plan_output-1200.avif 1200w">
+<source type="image/webp" srcset="/assets/posts/2026-01-12-claude-code-workflow/plan_output-800.webp 800w, /assets/posts/2026-01-12-claude-code-workflow/plan_output-1200.webp 1200w">
+<img src="/assets/posts/2026-01-12-claude-code-workflow/plan_output.png" width="959" height="1042" loading="lazy" decoding="async" sizes="(max-width: 800px) 100vw, 800px" alt="Claude Code plan output showing implementation steps">
+</picture></p>
+
+<h3 id="implementation">Implementation</h3>
+
+<p>Once we're happy with the plan, we can press the option to proceed and "auto-accept edits". This way Claude can start implementing whatever the plan says and edit files right away, without having to ask us for edit permissions every time.</p>
+
+<p>If you prefer, of course you can select "manually approve edits". This will give you more control over changes.</p>
+
+<p><picture>
+<source type="image/avif" srcset="/assets/posts/2026-01-12-claude-code-workflow/accept_plan_and_auto_edit-800.avif 800w, /assets/posts/2026-01-12-claude-code-workflow/accept_plan_and_auto_edit-1200.avif 1200w">
+<source type="image/webp" srcset="/assets/posts/2026-01-12-claude-code-workflow/accept_plan_and_auto_edit-800.webp 800w, /assets/posts/2026-01-12-claude-code-workflow/accept_plan_and_auto_edit-1200.webp 1200w">
+<img src="/assets/posts/2026-01-12-claude-code-workflow/accept_plan_and_auto_edit.png" width="960" height="203" loading="lazy" decoding="async" sizes="(max-width: 800px) 100vw, 800px" alt="Claude Code permission prompt with auto-accept edits option">
+</picture></p>
+
+<p>After ~4 min of work time, Claude successfully built the application and was ready to let us have a look. I then opened the app and tried it and could verify it was, indeed, ready to be used. At least this first version :)</p>
+
+<p>(note: in one of my tests I asked Scully about something that had just happened 24h before and it successfully validated that on its web search)</p>
+
+<p><picture>
+<source type="image/avif" srcset="/assets/posts/2026-01-12-claude-code-workflow/implementation_done-800.avif 800w, /assets/posts/2026-01-12-claude-code-workflow/implementation_done-1200.avif 1200w">
+<source type="image/webp" srcset="/assets/posts/2026-01-12-claude-code-workflow/implementation_done-800.webp 800w, /assets/posts/2026-01-12-claude-code-workflow/implementation_done-1200.webp 1200w">
+<img src="/assets/posts/2026-01-12-claude-code-workflow/implementation_done.png" width="962" height="763" loading="lazy" decoding="async" sizes="(max-width: 800px) 100vw, 800px" alt="Claude Code terminal showing successful build completion">
+</picture></p>
+
+<p><picture>
+<source type="image/avif" srcset="/assets/posts/2026-01-12-claude-code-workflow/trying_app_first_time-800.avif 800w, /assets/posts/2026-01-12-claude-code-workflow/trying_app_first_time-1200.avif 1200w">
+<source type="image/webp" srcset="/assets/posts/2026-01-12-claude-code-workflow/trying_app_first_time-800.webp 800w, /assets/posts/2026-01-12-claude-code-workflow/trying_app_first_time-1200.webp 1200w">
+<img src="/assets/posts/2026-01-12-claude-code-workflow/trying_app_first_time.png" width="812" height="1049" loading="lazy" decoding="async" sizes="(max-width: 800px) 100vw, 800px" alt="Scully Facts app running in browser with fact-check result">
+</picture></p>
+
+<h3 id="pr-review">PR Review</h3>
+
+<p>Before committing, I run <code>/pr-review</code>. This is a <a href="https://github.com/antoniocascais/claude-code-toolkit/blob/main/skills/pr-review/SKILL.md" target="_blank" rel="noopener noreferrer">custom skill I use</a> that will tell Claude to review the changes.</p>
+
+<p>I like to run it in a new Claude conversation so that it is not biased by the ongoing conversation.</p>
+
+<p><picture>
+<source type="image/avif" srcset="/assets/posts/2026-01-12-claude-code-workflow/pr-review-800.avif 800w, /assets/posts/2026-01-12-claude-code-workflow/pr-review-1200.avif 1200w">
+<source type="image/webp" srcset="/assets/posts/2026-01-12-claude-code-workflow/pr-review-800.webp 800w, /assets/posts/2026-01-12-claude-code-workflow/pr-review-1200.webp 1200w">
+<img src="/assets/posts/2026-01-12-claude-code-workflow/pr-review.png" width="880" height="266" loading="lazy" decoding="async" sizes="(max-width: 800px) 100vw, 800px" alt="Claude Code running /pr-review skill">
+</picture></p>
+
+<p>After ~1 min, Claude finished its review.</p>
+
+<p><picture>
+<source type="image/avif" srcset="/assets/posts/2026-01-12-claude-code-workflow/pr-review-output-800.avif 800w, /assets/posts/2026-01-12-claude-code-workflow/pr-review-output-1200.avif 1200w">
+<source type="image/webp" srcset="/assets/posts/2026-01-12-claude-code-workflow/pr-review-output-800.webp 800w, /assets/posts/2026-01-12-claude-code-workflow/pr-review-output-1200.webp 1200w">
+<img src="/assets/posts/2026-01-12-claude-code-workflow/pr-review-output.png" width="1022" height="560" loading="lazy" decoding="async" sizes="(max-width: 800px) 100vw, 800px" alt="Claude Code PR review output with suggestions">
+</picture></p>
+
+<p>Then I took a screenshot of the PR-review output and sent it to the other Claude instance running.</p>
+
+<p><picture>
+<source type="image/avif" srcset="/assets/posts/2026-01-12-claude-code-workflow/sharing_pr_comments_with_claude-800.avif 800w, /assets/posts/2026-01-12-claude-code-workflow/sharing_pr_comments_with_claude-1200.avif 1200w">
+<source type="image/webp" srcset="/assets/posts/2026-01-12-claude-code-workflow/sharing_pr_comments_with_claude-800.webp 800w, /assets/posts/2026-01-12-claude-code-workflow/sharing_pr_comments_with_claude-1200.webp 1200w">
+<img src="/assets/posts/2026-01-12-claude-code-workflow/sharing_pr_comments_with_claude.png" width="862" height="212" loading="lazy" decoding="async" sizes="(max-width: 800px) 100vw, 800px" alt="Sharing review screenshot with main Claude instance">
+</picture></p>
+
+<p>After some back &amp; forth we finally got to a point in which the review comments were implemented and the app was running healthy again.</p>
+
+<p>As a note, the <code>pr-review</code> skill should probably use <a href="/codex-vs-claude-code/">Codex (OpenAI's CLI tool)</a> to make the review. Using the same model to write and review the changes will make us very exposed to the model bias, even if using different context windows. It's something to change in the future.</p>
+
+<h3 id="note-taking">Note Taking</h3>
+
+<p>After the session, I use <code>/note-taking</code> to capture what we learned. Notes go into my Obsidian-compatible folder structure (see my <a href="/building-a-knowledge-base-with-claude-code-and-obsidian/">previous post about building a knowledge base with Claude Code and Obsidian</a>).</p>
+
+<p>Why this matters:</p>
+<ul>
+<li>Captures decisions and context that would otherwise be lost</li>
+<li>Future sessions can load this knowledge</li>
+<li>I don't have to re-explain the project next time</li>
+</ul>
+
+<p><picture>
+<source type="image/avif" srcset="/assets/posts/2026-01-12-claude-code-workflow/note-taking-init-800.avif 800w, /assets/posts/2026-01-12-claude-code-workflow/note-taking-init-1200.avif 1200w">
+<source type="image/webp" srcset="/assets/posts/2026-01-12-claude-code-workflow/note-taking-init-800.webp 800w, /assets/posts/2026-01-12-claude-code-workflow/note-taking-init-1200.webp 1200w">
+<img src="/assets/posts/2026-01-12-claude-code-workflow/note-taking-init.png" width="1268" height="122" loading="lazy" decoding="async" sizes="(max-width: 800px) 100vw, 800px" alt="Claude Code running /note-taking skill">
+</picture></p>
+
+<p>After ~1 min, Claude finished taking notes.</p>
+
+<p><picture>
+<source type="image/avif" srcset="/assets/posts/2026-01-12-claude-code-workflow/note-taking-finito-800.avif 800w, /assets/posts/2026-01-12-claude-code-workflow/note-taking-finito-1200.avif 1200w">
+<source type="image/webp" srcset="/assets/posts/2026-01-12-claude-code-workflow/note-taking-finito-800.webp 800w, /assets/posts/2026-01-12-claude-code-workflow/note-taking-finito-1200.webp 1200w">
+<img src="/assets/posts/2026-01-12-claude-code-workflow/note-taking-finito.png" width="985" height="300" loading="lazy" decoding="async" sizes="(max-width: 800px) 100vw, 800px" alt="Claude Code note-taking completed with files created">
+</picture></p>
+
+<h3 id="loading-context-in-new-sessions">Loading Context in New Sessions</h3>
+
+<p>Next time I work on this project (or something related), I use <code>/user:context</code> to load relevant notes. Claude starts the session already knowing what we did before.</p>
+
+<p><picture>
+<source type="image/avif" srcset="/assets/posts/2026-01-12-claude-code-workflow/user_context_load-800.avif 800w, /assets/posts/2026-01-12-claude-code-workflow/user_context_load-1200.avif 1200w">
+<source type="image/webp" srcset="/assets/posts/2026-01-12-claude-code-workflow/user_context_load-800.webp 800w, /assets/posts/2026-01-12-claude-code-workflow/user_context_load-1200.webp 1200w">
+<img src="/assets/posts/2026-01-12-claude-code-workflow/user_context_load.png" width="645" height="267" loading="lazy" decoding="async" sizes="(max-width: 800px) 100vw, 800px" alt="Claude Code running /user:context to load previous notes">
+</picture></p>
+
+<p><picture>
+<source type="image/avif" srcset="/assets/posts/2026-01-12-claude-code-workflow/user_context_finish_load-800.avif 800w, /assets/posts/2026-01-12-claude-code-workflow/user_context_finish_load-1200.avif 1200w">
+<source type="image/webp" srcset="/assets/posts/2026-01-12-claude-code-workflow/user_context_finish_load-800.webp 800w, /assets/posts/2026-01-12-claude-code-workflow/user_context_finish_load-1200.webp 1200w">
+<img src="/assets/posts/2026-01-12-claude-code-workflow/user_context_finish_load.png" width="845" height="314" loading="lazy" decoding="async" sizes="(max-width: 800px) 100vw, 800px" alt="Claude Code context loaded and summary displayed">
+</picture></p>
+
+<p>And just like this, we can pick up where we left from.</p>
+</section>
+
+<hr />
+
+<section id="conclusion">
+<h2>Conclusion</h2>
+
+<p>This post described more or less what's my flow when using Claude Code. There are people that use different techniques with Claude, at the moment I use these ones. It might not be the best way to use Claude, but it is my way. And it's been working fine so far, I'm happy.</p>
+
+<p>However, I'll always keep an open mind and look out for better ways to work with Claude Code (or any other AI tools). Probably if I revisit this post in a year from now, my flow will be different. And that's good.</p>
+
+<p>If you have any questions/comments feel free to reach out via email (see below) or via <a href="https://x.com/terminalnotes" target="_blank" rel="noopener noreferrer">Twitter/X</a> (still can't call it X, I'm too used to Twitter branding).</p>
+
+<p>I'll also be posting a full video walkthrough of this session on <a href="https://x.com/terminalnotes" target="_blank" rel="noopener noreferrer">Twitter/X</a> soon.</p>
+
+<p>Also, I have 3 free Claude Code passes: each gives access to 1 week free of Claude Code. If you're interested in having one, reach out!</p>
+
+<p><picture>
+<source type="image/avif" srcset="/assets/posts/2026-01-12-claude-code-workflow/claude_free_passes-800.avif 800w, /assets/posts/2026-01-12-claude-code-workflow/claude_free_passes-1200.avif 1200w">
+<source type="image/webp" srcset="/assets/posts/2026-01-12-claude-code-workflow/claude_free_passes-800.webp 800w, /assets/posts/2026-01-12-claude-code-workflow/claude_free_passes-1200.webp 1200w">
+<img src="/assets/posts/2026-01-12-claude-code-workflow/claude_free_passes.png" width="577" height="159" loading="lazy" decoding="async" sizes="(max-width: 800px) 100vw, 800px" alt="Claude Code free passes available">
+</picture></p>
+</section>
+
+<style>
+  /* Fix aspect ratio when images scale down */
+  article img { height: auto; }
+
+  /* Minimal lightbox */
+  .img-lightbox::backdrop { background: rgba(0,0,0,.75); }
+  .img-lightbox {
+    border: 0; padding: 0; margin: 0;
+    width: 100vw; height: 100vh;
+    background: transparent;
+  }
+  .img-lightbox .container {
+    display: grid; place-items: center;
+    width: 100vw; height: 100vh;
+    padding: 2rem;
+  }
+  .img-lightbox .container picture img {
+    max-width: 90vw; max-height: 90vh;
+    width: auto; height: auto;
+  }
+  .img-zoomable { cursor: zoom-in; }
+  .img-lightbox .close {
+    position: fixed; top: .75rem; right: .75rem;
+    font-size: 1.5rem; line-height: 1;
+    background: rgba(0,0,0,.6); color: #fff; border: 0; border-radius: .5rem;
+    padding: .35rem .6rem; cursor: pointer;
+  }
+</style>
+
+<dialog id="img-lightbox" class="img-lightbox" aria-label="Image viewer">
+  <button class="close" aria-label="Close">×</button>
+  <div class="container"></div>
+</dialog>
+
+<script>
+(() => {
+  const dlg = document.getElementById('img-lightbox');
+  const container = dlg.querySelector('.container');
+  const closeBtn = dlg.querySelector('.close');
+
+  // Make every picture clickable
+  document.querySelectorAll('article .post-content picture').forEach(pic => {
+    const img = pic.querySelector('img');
+    if (!img) return;
+    img.classList.add('img-zoomable');
+    img.addEventListener('click', () => {
+      // Clone the <picture> so AVIF/WebP fallback still works in the lightbox
+      const clone = pic.cloneNode(true);
+      const cimg = clone.querySelector('img');
+
+      // Remove loading hints and sizing so it can grow freely
+      cimg.removeAttribute('loading');
+      cimg.removeAttribute('decoding');
+      cimg.removeAttribute('sizes');
+
+      // Inject and open
+      container.innerHTML = '';
+      container.appendChild(clone);
+      dlg.showModal();
+    });
+  });
+
+  // Close interactions
+  closeBtn.addEventListener('click', () => dlg.close());
+  dlg.addEventListener('click', (e) => {
+    // click outside content closes
+    if (!e.composedPath().includes(container)) dlg.close();
+  });
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && dlg.open) dlg.close();
+  });
+})();
+</script>
